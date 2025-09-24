@@ -1,0 +1,56 @@
+<div class="container mx-auto p-4 relative my-20">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold">My Goals</h2>
+    <button (click)="toggleCreatePanel()"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+      + Create Goal
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-gray-500">Loading goals...</div>
+  <div *ngIf="error" class="text-red-500">{{ error }}</div>
+
+  <div *ngIf="!loading && goals.length === 0" class="text-gray-600">
+    No goals found.
+  </div>
+
+  <ul *ngIf="!loading" class="space-y-4">
+    @for(goal of goals$ | async;  track goal.id) {
+      <li class="p-4 border rounded shadow hover:bg-gray-50 cursor-pointer">
+        <h3 class="text-xl font-semibold">{{ goal.title }}</h3>
+        <p class="text-gray-700">{{ goal.description }}</p>
+        <p class="text-sm text-gray-500">Duration: {{ goal.duration }}</p>
+        <p class="text-sm text-gray-500">Status: {{ goal.goalStatus }}</p>
+        <p class="text-sm text-gray-500">Score: {{ goal.score || 0 }}%</p>
+
+        <div class="mt-2 space-x-2">
+          <button (click)="editGoal(goal)" class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
+          <button (click)="deleteGoal(goal.id)" class="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
+        </div>
+      </li>
+    }
+  </ul>
+
+  <!-- Side Panel -->
+  <div *ngIf="showCreatePanel"
+       class="fixed top-0 right-0 w-96 h-full bg-white shadow-lg p-6 z-50 transition-transform transform"
+       [ngClass]="{'translate-x-0': showCreatePanel, 'translate-x-full': !showCreatePanel}">
+    
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold">{{ isEditMode ? 'Edit Goal' : 'Create Goal' }}</h3>
+      <button (click)="toggleCreatePanel()" class="text-gray-500 hover:text-gray-700">&times;</button>
+    </div>
+
+    <app-create-goal
+      [isEditMode]="isEditMode"
+      [goal]="goalToEdit"
+      (goalCreated)="handleGoalCreated($event)"
+      (goalUpdated)="handleGoalUpdated($event)">
+    </app-create-goal>
+  </div>
+
+  <!-- Overlay -->
+  <div *ngIf="showCreatePanel" 
+       (click)="toggleCreatePanel()" 
+       class="fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+</div>
